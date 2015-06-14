@@ -2,6 +2,7 @@ package test.weather.tutorial.weather;
 
 import android.app.Activity;
 import android.content.Context;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -24,7 +25,39 @@ public class MainActivity extends Activity {
     private ListView listViewParent = null;
     private List<EachWeatherItem> weatherDataList;
     private int index, subIndex;
+    private JSONWeatherTask jsonWeatherTask;
 
+    private class JSONWeatherTask extends AsyncTask<Void, Void, List<EachWeatherItem>> {
+
+        @Override
+        protected List<EachWeatherItem> doInBackground(Void... params) {
+
+            try {
+
+               // List<EachWeatherItem> weatherData = MainWeatherRetriever.getAllWeatherData();
+
+                List<EachWeatherItem> weatherData = MainWeatherRetriever.getTestDemo();
+
+                return weatherData;
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(List<EachWeatherItem> weatherResult){
+            super.onPostExecute(weatherResult);
+
+            weatherDataList = weatherResult;
+
+            CustomListViewAdapter customListViewAdapter = new CustomListViewAdapter(MainActivity.this, R.layout.row_layout, weatherDataList);
+
+            //adapter assigned to ListView Object
+            listViewParent.setAdapter(customListViewAdapter);
+        }
+    }
 
     private class CustomListViewAdapter extends ArrayAdapter<EachWeatherItem>{
 
@@ -39,6 +72,7 @@ public class MainActivity extends Activity {
             public TextView subItem;
         }
 
+        // inflate the layout for each row and assign the data to the individual views in the row
         public View getView(int position, View childView, ViewGroup parentView){
 
             ViewHolder viewHolder = null;
@@ -71,63 +105,39 @@ public class MainActivity extends Activity {
 
         listViewParent =  (ListView)findViewById(R.id.listViewPrimary);
 
+        jsonWeatherTask = new JSONWeatherTask();
+
     }
 
     @Override
-    protected void onResume(){
+    protected void onResume() {
         super.onResume();
 
-        try {
-            weatherDataList = MainWeatherRetriever.getAllWeatherData();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        if(weatherDataList != null){
-
-            CustomListViewAdapter customListViewAdapter = new CustomListViewAdapter(MainActivity.this, R.layout.row_layout, weatherDataList);
-
-            listViewParent.setAdapter(customListViewAdapter);
-            listViewParent.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    Toast toast = Toast.makeText(getApplicationContext(), "Yo!", Toast.LENGTH_LONG);
-                    toast.show();
-                }
-            });
+        jsonWeatherTask.execute();
 
 
-            /*index = 0;
-            do {
-                EachWeatherItem eachWeather = weatherDataList.get(index);
-                //String[] eachWeatherComponents = eachWeather.split("#");
-                index++;
+        listViewParent.post(new Runnable() {
+            @Override
+            public void run() {
+
+                if (weatherDataList != null) {
 
 
-
-                //int countEachWeatherComponents = eachWeatherComponents.length;
-                if(countEachWeatherComponents>0){
-                    subIndex = 0;
-                    boolean flap = true;
-                    do{
-                        String[] eachComponent = eachWeatherComponents[subIndex].split("/",2);
-
-                        if(flap){
-                            flap =! flap;
-                        }else{
-                            flap =! flap;
+                    listViewParent.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                            Toast toast = Toast.makeText(getApplicationContext(), "Yo!", Toast.LENGTH_LONG);
+                            toast.show();
                         }
+                    });
 
-                    }while(subIndex<countEachWeatherComponents&&subIndex<2);
 
                 }
-
-            }while(index<weatherDataList.size());
-*/
-
-
-        }
+            }
+        });
     }
+
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

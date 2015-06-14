@@ -23,7 +23,7 @@ import java.util.ListIterator;
  */
 public class MainWeatherRetriever {
 
-    private static String[] geoLocation = {"Orlando,US", "Miami,US", "Tampa,US", "Chicago,US", "Houston,US", "Chennai,India", "Hyderabad,india"};
+    private static String[] geoLocation = {"Orlando", "Tampa"};
 
     private static final String BASE_URL = "http://api.openweathermap.org/data/2.5/weather?q=";
 
@@ -31,6 +31,7 @@ public class MainWeatherRetriever {
     private static JSONArray jsonArray = null;
 
     private static Location location = null;
+
 
     private static String getWeatherData(String location){
 
@@ -56,14 +57,14 @@ public class MainWeatherRetriever {
             inputStream.close();
             httpURLConnection.disconnect();
 
-            return bufferedReader.toString();
+            return stringBuffer.toString();
 
         }catch(Throwable t){
             t.printStackTrace();
         }finally {
             try{inputStream.close();}catch(Throwable t){}
             try{
-                assert httpURLConnection != null;}catch(Throwable t){}
+                httpURLConnection.disconnect();}catch(Throwable t){}
         }
 
         return null;
@@ -72,7 +73,7 @@ public class MainWeatherRetriever {
     private static String JSONWeatherParser(String data) throws JSONException {
         jsonWeatherObject = new JSONObject(data);
 
-        return jsonWeatherObject.getString("name")+"#"+jsonWeatherObject.getString("temp");
+        return jsonWeatherObject.getString("name");//+"#"+jsonWeatherObject.getString("temp");
 
     }
 
@@ -82,138 +83,26 @@ public class MainWeatherRetriever {
 
         //jsonWeatherObject = jsonArray.getJSONObject(0);
 
-        List<EachWeatherItem> weatherItemsList = new List<EachWeatherItem>() {
-            @Override
-            public void add(int location, EachWeatherItem object) {
-
-            }
-
-            @Override
-            public boolean add(EachWeatherItem object) {
-                return false;
-            }
-
-            @Override
-            public boolean addAll(int location, Collection<? extends EachWeatherItem> collection) {
-                return false;
-            }
-
-            @Override
-            public boolean addAll(Collection<? extends EachWeatherItem> collection) {
-                return false;
-            }
-
-            @Override
-            public void clear() {
-
-            }
-
-            @Override
-            public boolean contains(Object object) {
-                return false;
-            }
-
-            @Override
-            public boolean containsAll(Collection<?> collection) {
-                return false;
-            }
-
-            @Override
-            public EachWeatherItem get(int location) {
-                return null;
-            }
-
-            @Override
-            public int indexOf(Object object) {
-                return 0;
-            }
-
-            @Override
-            public boolean isEmpty() {
-                return false;
-            }
-
-            @NonNull
-            @Override
-            public Iterator<EachWeatherItem> iterator() {
-                return null;
-            }
-
-            @Override
-            public int lastIndexOf(Object object) {
-                return 0;
-            }
-
-            @NonNull
-            @Override
-            public ListIterator<EachWeatherItem> listIterator() {
-                return null;
-            }
-
-            @NonNull
-            @Override
-            public ListIterator<EachWeatherItem> listIterator(int location) {
-                return null;
-            }
-
-            @Override
-            public EachWeatherItem remove(int location) {
-                return null;
-            }
-
-            @Override
-            public boolean remove(Object object) {
-                return false;
-            }
-
-            @Override
-            public boolean removeAll(Collection<?> collection) {
-                return false;
-            }
-
-            @Override
-            public boolean retainAll(Collection<?> collection) {
-                return false;
-            }
-
-            @Override
-            public EachWeatherItem set(int location, EachWeatherItem object) {
-                return null;
-            }
-
-            @Override
-            public int size() {
-                return 0;
-            }
-
-            @NonNull
-            @Override
-            public List<EachWeatherItem> subList(int start, int end) {
-                return null;
-            }
-
-            @NonNull
-            @Override
-            public Object[] toArray() {
-                return new Object[0];
-            }
-
-            @NonNull
-            @Override
-            public <T> T[] toArray(T[] array) {
-                return null;
-            }
-        };
+        List<EachWeatherItem> weatherItemsList = new ArrayList<EachWeatherItem>();
 
         for(int i=0; i<geoLocation.length; i++){
 
             String weatherData = getWeatherData(geoLocation[i]);
-            String[] dataWeather = JSONWeatherParser(weatherData).split("#", 2);
-            EachWeatherItem items = new EachWeatherItem(dataWeather[0], dataWeather[1]);
+            //String[] dataWeather = JSONWeatherParser(weatherData).split("#", 2);
+            EachWeatherItem items = new EachWeatherItem(JSONWeatherParser(weatherData), null);
             weatherItemsList.add(items);
         }
 
         return null;
+    }
+
+    public static List<EachWeatherItem> getTestDemo(){
+
+         List<EachWeatherItem> weatherItemsList = new ArrayList<EachWeatherItem>();
+
+         weatherItemsList.add((new EachWeatherItem("Rome, IL", "Temperature: 30C")));
+         weatherItemsList.add((new EachWeatherItem("Milan, IL", "Temperature: 30C")));
+         return weatherItemsList;
     }
 
 }
