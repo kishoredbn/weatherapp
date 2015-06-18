@@ -34,9 +34,9 @@ public class MainActivity extends Activity {
 
             try {
 
-               // List<EachWeatherItem> weatherData = MainWeatherRetriever.getAllWeatherData();
+               List<EachWeatherItem> weatherData = MainWeatherRetriever.getAllWeatherData();
 
-                List<EachWeatherItem> weatherData = MainWeatherRetriever.getTestDemo();
+                //List<EachWeatherItem> weatherData = MainWeatherRetriever.getTestDemo();
 
                 return weatherData;
 
@@ -50,12 +50,15 @@ public class MainActivity extends Activity {
         protected void onPostExecute(List<EachWeatherItem> weatherResult){
             super.onPostExecute(weatherResult);
 
-            weatherDataList = weatherResult;
+            if(weatherResult != null) {
 
-            CustomListViewAdapter customListViewAdapter = new CustomListViewAdapter(MainActivity.this, R.layout.row_layout, weatherDataList);
+                weatherDataList = weatherResult;
 
-            //adapter assigned to ListView Object
-            listViewParent.setAdapter(customListViewAdapter);
+                CustomListViewAdapter customListViewAdapter = new CustomListViewAdapter(MainActivity.this, R.layout.row_layout, weatherDataList);
+
+                //adapter assigned to ListView Object
+                listViewParent.setAdapter(customListViewAdapter);
+            }
         }
     }
 
